@@ -46,7 +46,7 @@ pipeline {
 
         stage('Deploy to Kubernetes') {
             steps {
-                withCredentials([file(credentialsId: 'kubeconfig-id', variable: 'KUBECONFIG')]) {
+                withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
                     sh '''
                         kubectl --kubeconfig=$KUBECONFIG set image deployment/user-service user-service=$DOCKER_USER/$IMAGE_NAME:$BUILD_NUMBER
                         kubectl --kubeconfig=$KUBECONFIG rollout status deployment/user-service
