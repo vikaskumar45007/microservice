@@ -35,11 +35,9 @@ pipeline {
         stage('Build & Push Docker Image') {
             steps {
                 script {
-                    // Build the binary first
-                    sh './build.sh' // your script that produces ./bin/user-service
                     
                     // Compute hash of the binary
-                    def newHash = sh(script: "shasum -a 256 ./bin/user-service | awk '{print \$1}'", returnStdout: true).trim()
+                    def newHash = sh(script: "shasum -a 256 ./user-service | awk '{print \$1}'", returnStdout: true).trim()
                     
                     // Load previous hash from file, if it exists
                     def prevHash = ''
