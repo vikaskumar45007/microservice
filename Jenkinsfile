@@ -35,11 +35,20 @@ pipeline {
         stage('Build & Push Docker Image') {
             steps {
                 script {
-                    // Check if there are any changes in the repository
-                    def changes = sh(script: "git diff --name-only HEAD~1 HEAD", returnStdout: true).trim()
+                    // Build the binary first
+                    sh './build.sh' // your script that produces ./bin/user-service
                     
-                    if (changes) {
-                        echo "Changes detected, building and pushing Docker image..."
+                    // Compute hash of the binary
+                    def newHash = sh(script: "shasum -a 256 ./bin/user-service | awk '{print \$1}'", returnStdout: true).trim()
+                    
+                    // Load previous hash from file, if it exists
+                    def prevHash = ''
+                    if (fileExists('last_build.hash')) {
+                        prevHash = readFile('last_build.hash').trim()
+                    }
+                    
+                    if (newHash != prevHash) {
+                        echo "Binary changed, building and pushing Docker image..."
                         
                         withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                             sh '''
@@ -48,8 +57,11 @@ pipeline {
                                 docker push "$DOCKER_USER/$IMAGE_NAME:$BUILD_NUMBER"
                             '''
                         }
+                        
+                        // Save new hash for next run
+                        writeFile(file: 'last_build.hash', text: newHash)
                     } else {
-                        echo "No changes detected. Skipping Docker build."
+                        echo "Binary unchanged. Skipping Docker build."
                     }
                 }
             }
