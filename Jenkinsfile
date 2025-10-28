@@ -1,5 +1,10 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+        image 'golang:1.22'
+        args '-v /var/run/docker.sock:/var/run/docker.sock'
+        }
+    }
 
     environment {
         DOCKER_REGISTRY = 'developer45007'
@@ -11,6 +16,12 @@ pipeline {
         stage('Checkout') {
             steps {
                 git branch: 'main', url: 'https://github.com/vikaskumar45007/microservice.git'
+            }
+        }
+        stage('Build') {
+            steps {
+                sh 'go version'
+                sh 'go build ./...'
             }
         }
 
