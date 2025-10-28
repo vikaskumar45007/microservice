@@ -34,12 +34,23 @@ pipeline {
 
         stage('Build & Push Docker Image') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    sh '''
-                        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
-                        docker build -t $DOCKER_USER/$IMAGE_NAME:$BUILD_NUMBER .
-                        docker push $DOCKER_USER/$IMAGE_NAME:$BUILD_NUMBER
-                    '''
+                script {
+                    // Check if there are any changes in the repository
+                    def changes = sh(script: "git diff --name-only HEAD~1 HEAD", returnStdout: true).trim()
+                    
+                    if (changes) {
+                        echo "Changes detected, building and pushing Docker image..."
+                        
+                        withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                            sh '''
+                                echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                                docker build -t "$DOCKER_USER/$IMAGE_NAME:$BUILD_NUMBER" .
+                                docker push "$DOCKER_USER/$IMAGE_NAME:$BUILD_NUMBER"
+                            '''
+                        }
+                    } else {
+                        echo "No changes detected. Skipping Docker build."
+                    }
                 }
             }
         }
