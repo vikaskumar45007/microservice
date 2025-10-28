@@ -38,7 +38,7 @@ pipeline {
                     
                     // Compute hash of the binary
                     def newHash = sh(script: "shasum -a 256 ./user-service | awk '{print \$1}'", returnStdout: true).trim()
-                    
+                    def imageTag = newHash[0..7]
                     // Load previous hash from file, if it exists
                     def prevHash = ''
                     if (fileExists('last_build.hash')) {
@@ -69,7 +69,7 @@ pipeline {
             steps {
                 withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
                     sh '''
-                        kubectl --kubeconfig="$KUBECONFIG" set image deployment/user-service user-service="$DOCKER_USER/$IMAGE_NAME:$BUILD_NUMBER"
+                        kubectl --kubeconfig="$KUBECONFIG" set image deployment/user-service user-service="$DOCKER_USER/$IMAGE_NAME:$imageTag"
                         kubectl --kubeconfig="$KUBECONFIG" rollout status deployment/user-service
                     '''
                 }
