@@ -28,7 +28,7 @@ pipeline {
 
         stage('Build Binary') {
             steps {
-                sh 'go build -o user-service ./cmd/main.go'
+                sh 'go build -o user-service ./cmd/user-service/main.go'
             }
         }
 
