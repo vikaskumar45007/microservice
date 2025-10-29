@@ -50,7 +50,7 @@ pipeline {
                             def prevHashFile = "${env.WORKSPACE}/last_build_${SERVICE_NAME}.hash"
                             def newHash = sh(
                                 script: """
-                                    find cmd/${SERVICE_NAME} -type f -name '*.go' -print0 \
+                                    find cmd/${SERVICE_NAME} internal -type f -name '*.go' -print0 \
                                     | xargs -0 sha256sum \
                                     | sha256sum \
                                     | awk '{print \$1}'
