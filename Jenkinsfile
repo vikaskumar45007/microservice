@@ -14,8 +14,8 @@ pipeline {
         stage('Detect Services') {
             steps {
                 script {
-                    // Only directories, ignoring @tmp
-                    def SERVICES = sh(
+                    // Assign to pipeline-scoped variable (no def)
+                    SERVICES = sh(
                         script: "ls -1 cmd | grep -v '@tmp'",
                         returnStdout: true
                     ).trim().split("\n")
