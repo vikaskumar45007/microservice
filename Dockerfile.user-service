@@ -12,7 +12,7 @@ RUN go mod download
 COPY . .
 
 # Build the Go binary
-COPY user-service .
+RUN go build -o user-service ./cmd/user-service/main.go
 
 # Expose port (if your service listens on 8080)
 EXPOSE 8080

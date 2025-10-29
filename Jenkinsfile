@@ -39,18 +39,22 @@ pipeline {
                         // Build binary in a temporary directory inside workspace
                         dir("${env.WORKSPACE}/cmd/${SERVICE_NAME}") {
                             
-                            // 3.1 Build binary
-                            sh "go build -o ${SERVICE_NAME} ./main.go"
 
                             // 3.2 Run tests
                             sh "go test ./..."
 
-                            // 3.3 Compute binary hash
                             def newHash = sh(
-                                script: "shasum -a 256 ./${SERVICE_NAME} | awk '{print \$1}'",
+                                script: """
+                                    find cmd/user-service -type f -name '*.go' -print0 \
+                                    | xargs -0 sha256sum \
+                                    | sha256sum \
+                                    | awk '{print \$1}'
+                                """,
                                 returnStdout: true
                             ).trim()
+                            
                             def imageTag = newHash[0..7]
+                            echo "Computed hash for user-service: ${imageTag}"
 
                             // 3.4 Load previous hash
                             def prevHashFile = "${env.WORKSPACE}/last_build_${SERVICE_NAME}.hash"
