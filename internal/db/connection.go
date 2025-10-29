@@ -7,7 +7,7 @@ import (
 )
 
 func Connect() (*sql.DB,error){
-	dbStr := "postgres://postgres:postgres@localhost:5432/practice"
+	dbStr := "postgres://postgres:postgres@192.168.49.2:5432/practice"
 	db, err := sql.Open("pgx",dbStr)
 	if err != nil{
 		return nil,fmt.Errorf("open db : %w",err)
