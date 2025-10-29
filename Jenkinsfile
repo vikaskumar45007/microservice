@@ -14,11 +14,16 @@ pipeline {
         stage('Detect Services') {
             steps {
                 script {
-                    SERVICES = sh(script: "ls -1 cmd", returnStdout: true).trim().split("\n")
+                    // Only directories, ignoring @tmp
+                    def SERVICES = sh(
+                        script: "ls -1 cmd | grep -v '@tmp'",
+                        returnStdout: true
+                    ).trim().split("\n")
                     echo "Detected services: ${SERVICES}"
                 }
             }
         }
+
 
         stage('Build & Test') {
             steps {
