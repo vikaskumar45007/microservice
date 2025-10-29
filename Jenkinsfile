@@ -52,7 +52,7 @@ pipeline {
                                 """,
                                 returnStdout: true
                             ).trim()
-                            
+
                             def imageTag = newHash[0..7]
                             echo "Computed hash for user-service: ${imageTag}"
 
@@ -81,7 +81,7 @@ pipeline {
                                 withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
                                     sh """
                                         kubectl --kubeconfig="$KUBECONFIG" apply -f k8s/${SERVICE_NAME}/
-                                        kubectl --kubeconfig="$KUBECONFIG" set image deployment/${SERVICE_NAME} ${SERVICE_NAME}=$DOCKER_USER/$SERVICE_NAME:$imageTag --record
+                                        kubectl --kubeconfig="$KUBECONFIG" set image deployment/${SERVICE_NAME} ${SERVICE_NAME}=$env.DOCKER_USER/$SERVICE_NAME:$imageTag --record
                                         kubectl --kubeconfig="$KUBECONFIG" rollout status deployment/${SERVICE_NAME}
                                     """
                                 }
@@ -93,7 +93,7 @@ pipeline {
                                 withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
                                     sh """
                                         kubectl --kubeconfig="$KUBECONFIG" apply -f k8s/${SERVICE_NAME}/
-                                        kubectl --kubeconfig="$KUBECONFIG" set image deployment/${SERVICE_NAME} ${SERVICE_NAME}=$DOCKER_USER/$SERVICE_NAME:${prevHash.take(8)} --record
+                                        kubectl --kubeconfig="$KUBECONFIG" set image deployment/${SERVICE_NAME} ${SERVICE_NAME}=$env.DOCKER_USER/$SERVICE_NAME:${prevHash.take(8)} --record
                                         kubectl --kubeconfig="$KUBECONFIG" rollout status deployment/${SERVICE_NAME}
                                     """
                                 }
