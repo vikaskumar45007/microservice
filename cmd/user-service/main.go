@@ -18,6 +18,7 @@ func main(){
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/user/create",h.Create)
+	log.Printf("Server is listening at 8080 port.")
 	http.ListenAndServe(":8080",mux)
 	
 }
