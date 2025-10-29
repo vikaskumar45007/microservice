@@ -48,6 +48,8 @@ pipeline {
                             def imageTag = newHash.substring(0, 8)
 
                             def prevHash = fileExists('last_build.hash') ? readFile('last_build.hash').trim() : ''
+                            
+                            def dockerfileName = "../../Dockerfile.${SERVICE_NAME}"
 
                             if (newHash != prevHash) {
                                 echo "🟢 Change detected in ${SERVICE_NAME}, building new image: ${imageTag}"
@@ -56,7 +58,7 @@ pipeline {
                                 withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                                     sh """
                                         echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-                                        docker build -t "$DOCKER_USER/$SERVICE_NAME:$imageTag" -f Dockerfile .
+                                        docker build -t "$DOCKER_USER/$SERVICE_NAME:$imageTag" -f $dockerfileName .
                                         docker push "$DOCKER_USER/$SERVICE_NAME:$imageTag"
                                     """
                                 }
