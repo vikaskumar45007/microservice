@@ -62,6 +62,7 @@ pipeline {
                             if (newHash != prevHash) {
                                 echo "🟢 ${SERVICE_NAME} changed. Building Docker image ${imageTag}"
                                 withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                                    env.DOCKER_USER = DOCKER_USER
                                     sh """
                                         echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
                                         docker build -t "$DOCKER_USER/$SERVICE_NAME:$imageTag" -f $dockerfileName .
